@@ -34,14 +34,15 @@ class Plitka(pygame.sprite.Sprite):
         self.on=True
         self.adr =(self.rect.y // 100, self.rect.x //100)
     def update(self):
-        if pygame.sprite.spritecollideany(self ,player_group , False):
+        if pygame.sprite.spritecollide(self ,player_group , False):
             self.on =False
             self.image =of_image
             maps_list[self.adr[0]][self.adr[1]]=1
         pos =pygame.mouse.get_pos()
         if pygame.mouse.get_pressed()[0]:
             if self.on:
-                if self.rect.left <pos[0] < self.rect.right and
+                if self.rect.left <pos[0] < self.rect.right and self.rect.top < pos[1] < self.rect.bottom:
+                    list_player[Num_HOD].step = True
 class Player(pygame.sprite.Sprite):
     def __init__(self, image, x, y, name):
         pygame.sprite.Sprite.__init__(self)
@@ -52,6 +53,45 @@ class Player(pygame.sprite.Sprite):
         self.hod = False
         self.step =False
         self.name = name
+    def proverka(self):
+        pl = pygame.sprite.spritecollide(self , plika_group , False)[0]
+        x = pl.adr[1]
+        y = pl.adr[0]
+        list_hod = []
+        for i in (-1 ,0 ,1):
+            for j in (-1 , 0 , 1):
+                index_y =y+i
+                index_x = x+j
+                if -1 <index_x <7 and -1 <index_y < 7:
+                    if maps_list[index_y][index_x] == 0:
+                        list_hod.append(True)
+        return True in list_hod
+    def update(self):
+        global Num_HOD
+        if self.hod:
+            if not  self.proverka():
+                if Num_HOD>len(list_player) -1:
+                    Num_HOD = 0
+                    list_player[Num_HOD].hod =True
+                list_player.remove(self)
+                self.kill()
+            if pygame.mouse.get_pressed()[0]:
+                if self.step:
+                    clikc_pos =pygame.mouse.get_pos()
+                    if ((clikc_pos[0] - self.rect.center[0]) **2 +(
+                           clikc_pos[1] - self.rect.center[0]) ** 2) **0.5 <=150:
+                        self.rect.x = 10 + clikc_pos[0] // 100 * 100
+                        self.rect.y = 10 + clikc_pos[1] // 100 * 100
+                        Num_HOD = 1
+                        if Num_HOD >len(list_player) - 1:
+                            Num_HOD =0
+                        list_player[Num_HOD].hod =True
+
+
+
+
+
+
 
 on_image =pygame.image.load('data/image/on.png').convert_alpha()
 of_image =pygame.image.load('data/image/of.png').convert_alpha()
