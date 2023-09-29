@@ -1,11 +1,12 @@
 import pygame
 import os
 import sys
-current_path =os.path.dirname(__file__)
+import  random
+current_path = os.path.dirname(__file__)
 os.chdir(current_path)
 pygame.init()
-WIDHT = 1801
-HEIGHT = 801
+WIDHT = 1000
+HEIGHT = 800
 screen = pygame.display.set_mode((WIDHT, HEIGHT))
 fps = 60
 clock = pygame.time.Clock()
@@ -14,7 +15,10 @@ Num_HOD = 0
 font =pygame.font.SysFont('Aria', 40)
 plika_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
-
+b= 0
+c=0
+d = 0
+e =0
 maps_list =[
     [0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0],
@@ -68,8 +72,15 @@ class Player(pygame.sprite.Sprite):
         return True in list_hod
     def update(self):
         global Num_HOD
+        if len(player_group) == 1:
+            if Num_HOD == 0:
+                screen.fill('blue')
+                return
+            if Num_HOD == 1:
+                screen.fill('yellow')
+                return
         if self.hod:
-            if not  self.proverka():
+            if not self.proverka():
                 if Num_HOD>len(list_player) -1:
                     Num_HOD = 0
                     list_player[Num_HOD].hod =True
@@ -79,10 +90,11 @@ class Player(pygame.sprite.Sprite):
                 if self.step:
                     clikc_pos =pygame.mouse.get_pos()
                     if ((clikc_pos[0] - self.rect.center[0]) **2 +(
-                           clikc_pos[1] - self.rect.center[0]) ** 2) **0.5 <=150:
+                           clikc_pos[1] - self.rect.center[1]) ** 2) **0.5 <=150:
                         self.rect.x = 10 + clikc_pos[0] // 100 * 100
                         self.rect.y = 10 + clikc_pos[1] // 100 * 100
-                        Num_HOD = 1
+                        self.step = False
+                        Num_HOD += 1
                         if Num_HOD >len(list_player) - 1:
                             Num_HOD =0
                         list_player[Num_HOD].hod =True
@@ -93,34 +105,55 @@ class Player(pygame.sprite.Sprite):
 
 
 
-on_image =pygame.image.load('data/image/on.png').convert_alpha()
+
+
+on_image = pygame.image.load('data/image/on.png').convert_alpha()
 of_image =pygame.image.load('data/image/of.png').convert_alpha()
 p_1_image =pygame.image.load('data/image/P_1.png').convert_alpha()
 p_2_image =pygame.image.load('data/image/p_2.png').convert_alpha()
-
-player_1 =Player(p_1_image, 10 ,10, '1')
+a =random.randint(1,3)
+if a == 1:
+    b = 10
+    c =10
+    d =610
+    e =610
+elif a == 2:
+    b = 110
+    c =110
+    d =510
+    e =510
+elif a == 3:
+    b =210
+    c =210
+    d =410
+    e =410
+player_1 =Player(p_1_image, b ,c, input('Name - 1 ='))
 player_group.add(player_1)
 list_player.append(player_1)
-player_2 =Player(p_2_image, 610 ,610, '2')
+player_2 =Player(p_2_image, d ,e, input('Name - 2 ='))
 player_group.add(player_2)
 list_player.append(player_2)
 list_player[0].hod =True
 
-
-
+co = 'l'
 def game():
+    global co
+    global Num_HOD
     screen.fill('grey')
     plika_group.update()
     plika_group.draw(screen)
     player_group.update()
     player_group.draw(screen)
-
+    if Num_HOD%2 == 0:
+        co = 'blue'
+    else:
+        co = 'yellow'
     if len(player_group) == 1:
         text = f'win player: {list_player[0].name}'
     else:
         text = f'Ход игрока- {list_player[Num_HOD].name}'
-    text_render = font.render(text , 'black', True)
-    screen.blit(text_render,(0,0))
+    text_render = font.render(text ,True, co )
+    screen.blit(text_render,(750,10))
     pygame.display.update()
 
 
@@ -138,7 +171,6 @@ drawmaps()
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-
             pygame.quit()
             sys.exit()
     game()
